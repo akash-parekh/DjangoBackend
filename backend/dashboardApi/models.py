@@ -55,6 +55,8 @@ class Document(models.Model):
             print("HERE   ", assignProcessQ, assignReviewQ)
             emp1 =  assignProcessQ[0]['process_emp'] if assignProcessQ else empQ[0]
             emp2 = assignReviewQ[0]['review_emp'] if assignReviewQ else empQ[1]
+            if emp1 == emp2:
+                emp2 = assignReviewQ[1]['review_emp']
             process_emp = Employee.objects.get(emp_id = emp1)
             review_emp = Employee.objects.get(emp_id = emp2)
             createNew = Assignment(doc_id = newQ[0], process_emp = process_emp, review_emp = review_emp, status = self.Operation.ASSIGNED)

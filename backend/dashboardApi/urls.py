@@ -4,5 +4,6 @@ from . import views
 
 urlpatterns = [
      path('boardData', views.BoardData),
-     path('docUpdate/<str:id>', views.DocUpdate),
+     path('docDetails/<str:id>', views.DocUpdate),
+     path('docs', views.Docs)
 ]
