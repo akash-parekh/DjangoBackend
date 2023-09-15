@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import  {shuffle}  from "lodash"
 import Task from './Task'
-import boardsSlice from '../redux/boardsSlice'
+import boardsSlice, { updateDoc } from '../redux/boardsSlice'
 
 function Column({ colIndex}) {
 
@@ -23,6 +23,8 @@ function Column({ colIndex}) {
     const [color, setColor] = useState(null)
     const board = useSelector(state => state.boards.board)
     const col = board.columns.find((col, i) => i === colIndex)
+    
+    // const task = col.tasks.find((task, i) => i === taskIndex)
 
     useEffect(() => {
         setColor( shuffle(colors).pop())
@@ -33,10 +35,24 @@ function Column({ colIndex}) {
           e.dataTransfer.getData("text")
         );
     
-        if (colIndex !== prevColIndex) {
-          dispatch(
-            boardsSlice.actions.dragTask({ colIndex, prevColIndex, taskIndex })
-          );
+        if (colIndex == prevColIndex+1) {
+          const task = board.columns.find((col, i) => i === prevColIndex)
+          // console.log(task.tasks[taskIndex].Id)
+          let name = col.name == 'Completed' ? 'Reviewed' : col.name
+          let payload = {
+            "data":{
+              "status": name
+            },
+            "taskIndex": taskIndex,
+            "colIndex": colIndex,
+            "Id": task.tasks[taskIndex].Id,
+            "drag": true
+          }
+          console.log(payload)
+          // dispatch(
+          //   boardsSlice.actions.dragTask({ colIndex, prevColIndex, taskIndex })
+          // );
+          dispatch(updateDoc(payload))
         }
       };
     

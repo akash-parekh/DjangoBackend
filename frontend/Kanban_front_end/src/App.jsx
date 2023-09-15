@@ -3,6 +3,8 @@ import Header from './components/Header'
 import Center from './components/Center'
 import { useDispatch } from 'react-redux'
 import { fetchData } from './redux/boardsSlice'
+import Dashboard from './components/Dashboard'
+import Charts from './components/Charts'
 
 
 
@@ -22,6 +24,14 @@ function App() {
     {/* Center Section */}
 
     <Center />
+
+    {/* DashBoard Header Section */}
+
+    <Dashboard />
+
+    {/* Dashboard Charts */}
+
+    <Charts />
 
     </div>
   )

@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.db.models import Count
 
 from .models import Employee, Document, Assignment
 from .forms import DocForm
@@ -99,20 +100,85 @@ def BoardData(request):
 @api_view(['GET','POST'])
 def DocUpdate(request, id):
     docQ = Document.objects.values().get(pk = id)
+    print(docQ)
     assignQ = Assignment.objects.get(doc_id_id = id) 
     # print("Here")
     # print("",docQ, assignQ)
     if request.method == 'POST':
+        print(request)
         assignQ.status = request.data['status']
         assignQ.save(update_fields=['status'])
+        if request.data['type']:
+            docQ.type = request.data['type']
+            docQ.save(update_fields=['type'])
+        if request.data['complexity']:
+            docQ.complexity = request.data['complexity']
+            docQ.save(update_fields=['complexity'])
         updatedDoc = Document.objects.values().get(pk = id)
-        return Response({"Message": "Updated", "data": updatedDoc})
+        LatestAssign = Assignment.objects.values().get(doc_id_id = id)
+        if(updatedDoc['status'] == 'Assigned'):
+            payload = {
+                "title": updatedDoc['doc_name'],
+                "Id": updatedDoc['doc_id'],
+                "date_added": updatedDoc['date_added'],
+                "type": updatedDoc['type'],
+                "complexity": updatedDoc['complexity'],
+                "empId": LatestAssign['process_emp_id'],
+                "logs":[f"Document created at {updatedDoc['date_added']} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}"],
+                "status": 'Assigned'
+            }
+        elif(updatedDoc['status'] == 'Under Process'):
+            payload = {
+                "title": updatedDoc['doc_name'],
+                "Id": updatedDoc['doc_id'],
+                "date_added": updatedDoc['date_added'],
+                "type": updatedDoc['type'],
+                "complexity": updatedDoc['complexity'],
+                "empId": LatestAssign['process_emp_id'],
+                "logs":[f"Document created at {updatedDoc['date_added']} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}"],
+                "status": 'Under Process'
+            }
+        elif(updatedDoc['status'] == 'Processed'):
+            payload = {
+                "title": updatedDoc['doc_name'],
+                "Id": updatedDoc['doc_id'],
+                "date_added": updatedDoc['date_added'],
+                "type": updatedDoc['type'],
+                "complexity": updatedDoc['complexity'],
+                "empId": LatestAssign['review_emp_id'],
+                "logs":[f"Document created at {updatedDoc['date_added']} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}", f"Document Processed at {updatedDoc['date_processed']} ({updatedDoc['time_to_process']})", f"Document Assigned to {LatestAssign['review_emp_id']}"],
+                "status": 'Processed'
+            }
+        elif(updatedDoc['status'] == 'Under Review'):
+            payload = {
+                "title": updatedDoc['doc_name'],
+                "Id": updatedDoc['doc_id'],
+                "date_added": updatedDoc['date_added'],
+                "type": updatedDoc['type'],
+                "complexity": updatedDoc['complexity'],
+                "empId": LatestAssign['review_emp_id'],
+                "logs":[f"Document created at {updatedDoc['date_added']} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}", f"Document Processed at {updatedDoc['date_processed']} ({updatedDoc['time_to_process']})", f"Document Assigned to {LatestAssign['review_emp_id']}"],
+                "status": 'Under Review'
+            }
+        elif(updatedDoc['status'] == 'Reviewed'):
+            payload = {
+                "title": updatedDoc['doc_name'],
+                "Id": updatedDoc['doc_id'],
+                "date_added": updatedDoc['date_added'],
+                "type": updatedDoc['type'],
+                "complexity": updatedDoc['complexity'],
+                "empId": LatestAssign['review_emp_id'],
+                "logs":[f"Document created at {updatedDoc['date_added']} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}", f"Document Processed at {updatedDoc['date_processed']} ({updatedDoc['time_to_process']})", f"Document Assigned to {LatestAssign['review_emp_id']}", f"Document Completed at {updatedDoc['date_reviwed']} ({updatedDoc['time_to_review']})", f"Total Time Take to Complete the document - {updatedDoc['total_time']}"],
+                "status": 'Completed'
+            }
+        return Response({"Message": "Updated", "data": payload})
     
     elif request.method == 'GET':
         return Response(docQ)
     
 @api_view(['GET','POST'])
 def Docs(request):
+    print(request.data)
     docQ = Document.objects.values().all()
     if request.method == 'GET':
         return Response(docQ)
@@ -127,9 +193,129 @@ def Docs(request):
                 "date_added": LatestDoc['date_added'],
                 "type": LatestDoc['type'],
                 "complexity": LatestDoc['complexity'],
-                "empId": LatestAssign[i]['review_emp_id'],
+                "empId": LatestAssign['review_emp_id'],
                 "logs":[f"Document created at {LatestDoc['date_added']} of type {LatestDoc['type']} and complexity {LatestDoc['complexity']}"], 
-                "status": 'Completed'
+                "status": 'Assigned'
             }
         return Response({"Message": "New Document Created", "data": payload})
                 
+                
+                
+@api_view(['GET'])
+def Dashboard(request):
+    simpleDoc = Document.objects.values('doc_id').filter(complexity='Simple')
+    simpleAssign = Assignment.objects.values('process_emp_id').annotate(num_docs = Count('doc_id')).filter(doc_id__in = simpleDoc)
+    complexDoc = Document.objects.values('doc_id').filter(complexity='Complex')
+    complexAssign = Assignment.objects.values('process_emp_id').annotate(num_docs = Count('doc_id')).filter(doc_id__in = complexDoc)
+    veryComplexDoc = Document.objects.values('doc_id').filter(complexity='Very Complex')
+    veryComplexAssign = Assignment.objects.values('process_emp_id').annotate(num_docs = Count('doc_id')).filter(doc_id__in = veryComplexDoc)
+    simple = [0,0,0]
+    complex = [0,0,0]
+    veryComplex = [0,0,0]
+    print(simpleDoc)
+    for i in range(0, simpleAssign.count()):
+        if simpleAssign[i]['process_emp_id'] == 'EmpOne':
+            simple[0] = simpleAssign[i]['num_docs']
+        elif simpleAssign[i]['process_emp_id'] == 'EmpTwo':
+            simple[1] = simpleAssign[i]['num_docs']
+        else:
+            simple[2] = simpleAssign[i]['num_docs']
+    
+    for i in range(0, complexAssign.count()):
+        if complexAssign[i]['process_emp_id'] == 'EmpOne':
+            complex[0] = complexAssign[i]['num_docs']
+        elif complexAssign[i]['process_emp_id'] == 'EmpTwo':
+            complex[1] = complexAssign[i]['num_docs']
+        else:
+            complex[2] = complexAssign[i]['num_docs']
+            
+    for i in range(0, veryComplexAssign.count()):
+        if veryComplexAssign[i]['process_emp_id'] == 'EmpOne':
+            veryComplex[0] = veryComplexAssign[i]['num_docs']
+        elif veryComplexAssign[i]['process_emp_id'] == 'EmpTwo':
+            veryComplex[1] = veryComplexAssign[i]['num_docs']
+        else:
+            veryComplex[2] = veryComplexAssign[i]['num_docs']
+    print(simple)
+    chart1 =[
+            ['Employee ID', 'Simple', 'Complex', 'Very Complex'],
+            ['EmpOne', simple[0], complex[0], veryComplex[0]],
+            ['EmpTwo', simple[1], complex[1], veryComplex[1]],
+            ['EmpThree', simple[2], complex[2], veryComplex[2]],
+        ]
+    
+    
+    BLDoc = Document.objects.values('doc_id').filter(type='Balance Sheet')
+    BLAssign = Assignment.objects.values('process_emp_id').annotate(num_docs = Count('doc_id')).filter(doc_id__in = BLDoc)
+    CFSDoc = Document.objects.values('doc_id').filter(type='Cash Flow Statement')
+    CFSAssign = Assignment.objects.values('process_emp_id').annotate(num_docs = Count('doc_id')).filter(doc_id__in = CFSDoc)
+    ISDoc = Document.objects.values('doc_id').filter(type='Income Statement')
+    ISAssign = Assignment.objects.values('process_emp_id').annotate(num_docs = Count('doc_id')).filter(doc_id__in = ISDoc)
+    BL = [0,0,0]
+    CFS = [0,0,0]
+    IS = [0,0,0]
+    print(simpleDoc)
+    for i in range(0, BLAssign.count()):
+        if BLAssign[i]['process_emp_id'] == 'EmpOne':
+            BL[0] = BLAssign[i]['num_docs']
+        elif BLAssign[i]['process_emp_id'] == 'EmpTwo':
+            BL[1] = BLAssign[i]['num_docs']
+        else:
+            BL[2] = BLAssign[i]['num_docs']
+    
+    for i in range(0, CFSAssign.count()):
+        if CFSAssign[i]['process_emp_id'] == 'EmpOne':
+            CFS[0] = CFSAssign[i]['num_docs']
+        elif CFSAssign[i]['process_emp_id'] == 'EmpTwo':
+            CFS[1] = CFSAssign[i]['num_docs']
+        else:
+            CFS[2] = CFSAssign[i]['num_docs']
+            
+    for i in range(0, ISAssign.count()):
+        if ISAssign[i]['process_emp_id'] == 'EmpOne':
+            IS[0] = ISAssign[i]['num_docs']
+        elif ISAssign[i]['process_emp_id'] == 'EmpTwo':
+            IS[1] = ISAssign[i]['num_docs']
+        else:
+            IS[2] = ISAssign[i]['num_docs']
+
+    chart2 =[
+            ['Employee ID', 'Balance Sheet', 'Cash Flow Statement', 'Income Statement'],
+            ['EmpOne', BL[0], CFS[0], IS[0]],
+            ['EmpTwo', BL[1], CFS[1], IS[1]],
+            ['EmpThree', BL[2], CFS[2], IS[2]],
+        ]
+    
+    statusDoc = Document.objects.values('status').annotate(num_docs = Count('status'))
+    
+    chart3 = [
+        ['Status', 'Count'],
+    ]
+    for i in range(0, statusDoc.count()):
+        chart3.append([statusDoc[i]['status'], statusDoc[i]['num_docs']])
+    
+    
+    
+    return Response({"chart1":chart1, "chart2":chart2, "chart3": chart3})
+            
+    
+    
+    
+    
+# Assignment.objects.values('process_emp_id').annotate(num_docs = Count("doc_id"))
+# <QuerySet [{'process_emp_id': 'EmpOne', 'num_docs': 11}, {'process_emp_id': 'EmpThree', 'num_docs': 11}, {'process_emp_id': 'EmpTwo', 'num_docs': 10}]>
+
+# Document.objects.values('doc_id').filter(type='Balance Sheet')
+# Assignment.objects.values('process_emp_id').annotate(num_docs = Count('doc_id')).filter(doc_id__in = doc1)
+# <QuerySet [{'process_emp_id': 'EmpOne', 'num_docs': 4}, {'process_emp_id': 'EmpThree', 'num_docs': 5}, {'process_emp_id': 'EmpTwo', 'num_docs': 3}]>
+
+# Document.objects.values('status').annotate(num_docs = Count('status'))
+# <QuerySet [{'status': 'Assigned', 'num_docs': 5}, {'status': 'Processed', 'num_docs': 6}, {'status': 'Reviewed', 'num_docs': 12}, {'status': 'Under Process', 'num_docs': 3}, {'status': 'Under Review', 'num_docs': 6}]>
+
+# doc2 = Assignment.objects.values('status').annotate(num_of_docs=Count('status')).filter(status__in=['Processed','Under Review','Reviewed'])
+# <QuerySet [{'status': 'Processed', 'num_of_docs': 6}, {'status': 'Reviewed', 'num_of_docs': 12}, {'status': 'Under Review', 'num_of_docs': 6}]>
+
+# Assignment.objects.values('process_emp').annotate(num_of_docs=Count('status')).filter(status__in=['Processed','Under Review','Reviewed'])
+# <QuerySet [{'process_emp': 'EmpOne', 'num_of_docs': 9}, {'process_emp': 'EmpThree', 'num_of_docs': 8}, {'process_emp': 'EmpTwo', 'num_of_docs': 7}]>
+
+

@@ -1,17 +1,19 @@
 import React, {useState} from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import boardsSlice from '../redux/boardsSlice';
+import { addDoc } from '../redux/boardsSlice';
 
 function AddEditTaskModal({ type, setOpenAddEditTask,  prevColIndex = 0, }) {
     const dispatch = useDispatch()
     const columns = useSelector((state) => state.boards.board.columns);
     const col = columns.find((col, index) => index === prevColIndex)
+    const state = useSelector((state) => state)
     
 
     const [title, setTitle] = useState('')
     const [id, setId] = useState('')
-    const [doctype, setDocType] = useState('Simple')
-    const [complexity, setComplexity] = useState('Balance Sheet')
+    const [doctype, setDocType] = useState('Balance Sheet')
+    const [complexity, setComplexity] = useState('Simple')
     const [isValid, setIsValid] = useState(false)
     const [newColIndex, setNewColIndex] = useState(prevColIndex)
     const [status, setStatus] = useState(columns[prevColIndex].name)
@@ -27,15 +29,16 @@ function AddEditTaskModal({ type, setOpenAddEditTask,  prevColIndex = 0, }) {
 
     const onSubmit = () => {
         if(type === 'add'){
-            dispatch(
-                boardsSlice.actions.addTask({
-                    "doc_name":title,
-                    "doc_id":id,
-                    "type":doctype,
-                    "complexity":complexity,
-                    newColIndex,
-                })
-            )
+            // let type = doctype
+            // if(type == 'Completed') type = 'Reviewed'
+            let payload = {
+                "doc_name": title,
+                "doc_id": id,
+                "type": doctype,
+                "complexity": complexity
+            }
+            console.log("Payload - ",payload)
+            dispatch(addDoc(payload))
         }
     }
 

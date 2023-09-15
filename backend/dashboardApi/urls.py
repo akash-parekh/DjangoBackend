@@ -5,5 +5,6 @@ from . import views
 urlpatterns = [
      path('boardData', views.BoardData),
      path('docDetails/<str:id>', views.DocUpdate),
-     path('docs', views.Docs)
+     path('docs', views.Docs),
+     path('dashBoard', views.Dashboard)
 ]
