@@ -18,7 +18,7 @@ function Charts() {
         >
             <div>
                 <div
-                className=' scrollbar-hide h-screen flex bg-[#20212c] overflow-x-scroll gap-6 pt-4 pl-4'
+                className=' scrollbar-hide h-screen flex flex-wrap bg-[#20212c] overflow-x-scroll gap-6 pt-4 pl-4 pb-14'
                 >
                     <div>
                         <Chart
@@ -134,6 +134,95 @@ function Charts() {
                         />
                     </div>
 
+                    <div>
+                        <Chart 
+                        chartType="AreaChart"
+                        data = {chart.data.chart4}
+                        options={{
+                            legend: {
+                                position: "top", 
+                                maxLines:3,
+                                textStyle:{
+                                    color: '#fff'
+                                },
+                                titleTextStyle:{
+                                    color: '#fff'
+                                }
+                            },
+                            title: "Document Processed by employee",
+                            titleTextStyle:{
+                                color: '#fff'
+                            },
+                            hAxis: {
+                                title: "Employees",
+                                textStyle:{
+                                    color: '#fff'
+                                },
+                                titleTextStyle:{
+                                    color: '#fff'
+                                }
+                            },
+                            vAxis: {
+                                title: "No of Documents Processed",
+                                minValue: 4,
+                                textStyle:{
+                                    color: '#fff'
+                                },
+                                titleTextStyle:{
+                                    color: '#fff'
+                                }
+                            },
+                            backgroundColor: '#2b2c37'
+                        }}
+                        width="450px"
+                        height="400px"
+                        />
+                    </div>
+
+                    <div>
+                        <Chart 
+                        chartType="AreaChart"
+                        data = {chart.data.chart5}
+                        options={{
+                            legend: {
+                                position: "top", 
+                                maxLines:3,
+                                textStyle:{
+                                    color: '#fff'
+                                },
+                                titleTextStyle:{
+                                    color: '#fff'
+                                }
+                            },
+                            title: "Document Processed by employee",
+                            titleTextStyle:{
+                                color: '#fff'
+                            },
+                            hAxis: {
+                                title: "Employees",
+                                textStyle:{
+                                    color: '#fff'
+                                },
+                                titleTextStyle:{
+                                    color: '#fff'
+                                }
+                            },
+                            vAxis: {
+                                title: "No of Documents Processed",
+                                minValue: 4,
+                                textStyle:{
+                                    color: '#fff'
+                                },
+                                titleTextStyle:{
+                                    color: '#fff'
+                                }
+                            },
+                            backgroundColor: '#2b2c37'
+                        }}
+                        width="450px"
+                        height="400px"
+                        />
+                    </div>
 
                 </div>
             </div>

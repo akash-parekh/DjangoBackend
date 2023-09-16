@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db.models import Count
+import pandas as pd
 
 from .models import Employee, Document, Assignment
 from .forms import DocForm
@@ -12,8 +13,6 @@ from .forms import DocForm
 def BoardData(request):
     docQ = Document.objects.values().all()
     assignQ = Assignment.objects.values().all()
-    # print(docQ)
-    # print(assignQ)
     
     assignData = []
     underProcessData = []
@@ -100,12 +99,8 @@ def BoardData(request):
 @api_view(['GET','POST'])
 def DocUpdate(request, id):
     docQ = Document.objects.values().get(pk = id)
-    print(docQ)
     assignQ = Assignment.objects.get(doc_id_id = id) 
-    # print("Here")
-    # print("",docQ, assignQ)
     if request.method == 'POST':
-        print(request)
         assignQ.status = request.data['status']
         assignQ.save(update_fields=['status'])
         if request.data['type']:
@@ -178,7 +173,6 @@ def DocUpdate(request, id):
     
 @api_view(['GET','POST'])
 def Docs(request):
-    print(request.data)
     docQ = Document.objects.values().all()
     if request.method == 'GET':
         return Response(docQ)
@@ -212,7 +206,6 @@ def Dashboard(request):
     simple = [0,0,0]
     complex = [0,0,0]
     veryComplex = [0,0,0]
-    print(simpleDoc)
     for i in range(0, simpleAssign.count()):
         if simpleAssign[i]['process_emp_id'] == 'EmpOne':
             simple[0] = simpleAssign[i]['num_docs']
@@ -236,7 +229,6 @@ def Dashboard(request):
             veryComplex[1] = veryComplexAssign[i]['num_docs']
         else:
             veryComplex[2] = veryComplexAssign[i]['num_docs']
-    print(simple)
     chart1 =[
             ['Employee ID', 'Simple', 'Complex', 'Very Complex'],
             ['EmpOne', simple[0], complex[0], veryComplex[0]],
@@ -254,7 +246,6 @@ def Dashboard(request):
     BL = [0,0,0]
     CFS = [0,0,0]
     IS = [0,0,0]
-    print(simpleDoc)
     for i in range(0, BLAssign.count()):
         if BLAssign[i]['process_emp_id'] == 'EmpOne':
             BL[0] = BLAssign[i]['num_docs']
@@ -294,9 +285,30 @@ def Dashboard(request):
     for i in range(0, statusDoc.count()):
         chart3.append([statusDoc[i]['status'], statusDoc[i]['num_docs']])
     
+    assignDoc = Assignment.objects.values('process_emp_id').annotate(num_docs = Count('status')).filter(status__in = ['Processed','Under Review','Reviewed'])
+    
+    chart4 = [
+        ['Employee ID', 'Min Threshold', 'Document Processed'],
+    ]
+    for i in range(0, assignDoc.count()):
+        chart4.append([assignDoc[i]['process_emp_id'], 8, assignDoc[i]['num_docs']])
+        
+    # docTime = Document.objects.values('doc_id','time_to_process','time_to_review','total_time').exclude(status__in = ['Assigned','Under Process'])
+    docTime = Document.objects.values('doc_id','time_to_process','time_to_review','total_time').filter(status = 'Reviewed')
+    chart5 = [['Document','Process Time','Review Time','Total Time']]
+    for i in range(0, docTime.count()):
+        processTime = 0 if pd.isna(pd.Timedelta(docTime[i]['time_to_process'])) else pd.Timedelta(docTime[i]['time_to_process']).total_seconds() / 60
+        reviewTime = 0 if pd.isna(pd.Timedelta(docTime[i]['time_to_review'])) else pd.Timedelta(docTime[i]['time_to_review']).total_seconds() / 60
+        totalTime = 0 if pd.isna(pd.Timedelta(docTime[i]['total_time'])) else pd.Timedelta(docTime[i]['total_time']).total_seconds() / 60
+        # reviewTime = pd.Timedelta(docTime[i]['time_to_review'])
+        # totalTime = pd.Timedelta(docTime[i]['total_time'])
+        
+        print( processTime ,pd.isna(processTime))
+            
+        chart5.append([docTime[i]['doc_id'],int(str(int(processTime))[:4]),int(str(int(reviewTime))[:4]),int(str(int(totalTime))[:4])])
     
     
-    return Response({"chart1":chart1, "chart2":chart2, "chart3": chart3})
+    return Response({"chart1":chart1, "chart2":chart2, "chart3": chart3, "chart4": chart4, "chart5":chart5})
             
     
     

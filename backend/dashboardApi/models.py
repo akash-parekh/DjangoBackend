@@ -65,12 +65,12 @@ class Document(models.Model):
         elif self.status == self.Operation.UNDER_PROCESS:
             self.date_processed = now()
         elif self.status == self.Operation.PROCESSED:
-            self.time_to_process = now() - self.date_processed
+            self.time_to_process = (now() - self.date_processed).total_seconds()
             self.date_processed = now()
         elif self.status == self.Operation.UNDER_REVIEW:
             self.date_reviwed = now()
         elif self.status == self.Operation.REVIEWED:
-            self.time_to_review = now() - self.date_reviwed
+            self.time_to_review = (now() - self.date_reviwed).total_seconds()
             self.date_reviwed = now()
             self.total_time = now() - self.date_added
         return super().save(*args, **kwargs)
