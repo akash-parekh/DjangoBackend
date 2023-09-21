@@ -9,7 +9,7 @@ function Header() {
     const [openAddEditTask, setOpenAddEditTask] = useState(false)
 
     return (
-        <div className=' p-4 fixed left-0 bg-[#2b2c37] z-50 right-0'>
+        <div className=' p-4 fixed left-0 bg-[#2b2c37] z-30 right-0'>
 
             <header className=' flex justify-between text-white items-center'>
                 

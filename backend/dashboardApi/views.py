@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db.models import Count
 import pandas as pd
+from datetime import datetime
 
 from .models import Employee, Document, Assignment
 from .forms import DocForm
@@ -25,56 +26,63 @@ def BoardData(request):
             assignData.append({
                 "title": docQ[i]['doc_name'],
                 "Id": docQ[i]['doc_id'],
-                "date_added": docQ[i]['date_added'],
+                "date_added": docQ[i]['date_added'].strftime('%m/%d/%Y, %H:%M:%S'),
                 "type": docQ[i]['type'],
                 "complexity": docQ[i]['complexity'],
                 "empId": assignQ[i]['process_emp_id'],
-                "logs":[f"Document created at {docQ[i]['date_added']} of type {docQ[i]['type']} and complexity {docQ[i]['complexity']}", f"Document Assigned to {assignQ[i]['process_emp_id']}"],
-                "status": 'Assigned'
+                # "logs":[f"Document created at {docQ[i]['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {docQ[i]['type']} and complexity {docQ[i]['complexity']}", f"Document Assigned to {assignQ[i]['process_emp_id']}"],
+                "status": 'Assigned',
+                "documentTrail": docQ[i]['documentTrail'].split('\r\n')
             })
         elif(docQ[i]['status'] == 'Under Process'):
             underProcessData.append({
                 "title": docQ[i]['doc_name'],
                 "Id": docQ[i]['doc_id'],
-                "date_added": docQ[i]['date_added'],
+                "date_added": docQ[i]['date_added'].strftime('%m/%d/%Y, %H:%M:%S'),
                 "type": docQ[i]['type'],
                 "complexity": docQ[i]['complexity'],
                 "empId": assignQ[i]['process_emp_id'],
-                "logs":[f"Document created at {docQ[i]['date_added']} of type {docQ[i]['type']} and complexity {docQ[i]['complexity']}", f"Document Assigned to {assignQ[i]['process_emp_id']}"],
-                "status": 'Under Process'
+                # "logs":[f"Document created at {docQ[i]['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {docQ[i]['type']} and complexity {docQ[i]['complexity']}", f"Document Assigned to {assignQ[i]['process_emp_id']}"],
+                "status": 'Under Process',
+                "documentTrail": docQ[i]['documentTrail'].split('\r\n')
             })
         elif(docQ[i]['status'] == 'Processed'):
             processedData.append({
                 "title": docQ[i]['doc_name'],
                 "Id": docQ[i]['doc_id'],
-                "date_added": docQ[i]['date_added'],
+                "date_added": docQ[i]['date_added'].strftime('%m/%d/%Y, %H:%M:%S'),
                 "type": docQ[i]['type'],
                 "complexity": docQ[i]['complexity'],
                 "empId": assignQ[i]['review_emp_id'],
-                "logs":[f"Document created at {docQ[i]['date_added']} of type {docQ[i]['type']} and complexity {docQ[i]['complexity']}", f"Document Assigned to {assignQ[i]['process_emp_id']}", f"Document Processed at {docQ[i]['date_processed']} ({docQ[i]['time_to_process']})", f"Document Assigned to {assignQ[i]['review_emp_id']}"],
-                "status": 'Processed'
+                # "logs":[f"Document created at {docQ[i]['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {docQ[i]['type']} and complexity {docQ[i]['complexity']}", f"Document Assigned to {assignQ[i]['process_emp_id']}", f"Document Processed at {docQ[i]['date_processed'].strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(docQ[i]['time_to_process']).total_seconds() / 60)} minutes)", f"Document Assigned to {assignQ[i]['review_emp_id']}"],
+                "status": 'Processed',
+                "documentTrail": docQ[i]['documentTrail'].split('\r\n')
             })
         elif(docQ[i]['status'] == 'Under Review'):
             underReviewData.append({
                 "title": docQ[i]['doc_name'],
                 "Id": docQ[i]['doc_id'],
-                "date_added": docQ[i]['date_added'],
+                "date_added": docQ[i]['date_added'].strftime('%m/%d/%Y, %H:%M:%S'),
                 "type": docQ[i]['type'],
                 "complexity": docQ[i]['complexity'],
                 "empId": assignQ[i]['review_emp_id'],
-                "logs":[f"Document created at {docQ[i]['date_added']} of type {docQ[i]['type']} and complexity {docQ[i]['complexity']}", f"Document Assigned to {assignQ[i]['process_emp_id']}", f"Document Processed at {docQ[i]['date_processed']} ({docQ[i]['time_to_process']})", f"Document Assigned to {assignQ[i]['review_emp_id']}"],
-                "status": 'Under Review'
+                # "logs":[f"Document created at {docQ[i]['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {docQ[i]['type']} and complexity {docQ[i]['complexity']}", f"Document Assigned to {assignQ[i]['process_emp_id']}", f"Document Processed at {docQ[i]['date_processed'].strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(docQ[i]['time_to_process']).total_seconds() / 60)} minutes)", f"Document Assigned to {assignQ[i]['review_emp_id']}"],
+                "status": 'Under Review',
+                "documentTrail": docQ[i]['documentTrail'].split('\r\n')
+                # "documentTrail": docQ[i]['documentTrail'].split('\r\n').split(),
+                # "recheck": docQ[i]['reCheck']
             })
         elif(docQ[i]['status'] == 'Reviewed'):
             reviewedData.append({
                 "title": docQ[i]['doc_name'],
                 "Id": docQ[i]['doc_id'],
-                "date_added": docQ[i]['date_added'],
+                "date_added": docQ[i]['date_added'].strftime('%m/%d/%Y, %H:%M:%S'),
                 "type": docQ[i]['type'],
                 "complexity": docQ[i]['complexity'],
                 "empId": assignQ[i]['review_emp_id'],
-                "logs":[f"Document created at {docQ[i]['date_added']} of type {docQ[i]['type']} and complexity {docQ[i]['complexity']}", f"Document Assigned to {assignQ[i]['process_emp_id']}", f"Document Processed at {docQ[i]['date_processed']} ({docQ[i]['time_to_process']})", f"Document Assigned to {assignQ[i]['review_emp_id']}", f"Document Completed at {docQ[i]['date_reviwed']} ({docQ[i]['time_to_review']})", f"Total Time Take to Complete the document - {docQ[i]['total_time']}"],
-                "status": 'Completed'
+                # "logs":[f"Document created at {docQ[i]['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {docQ[i]['type']} and complexity {docQ[i]['complexity']}", f"Document Assigned to {assignQ[i]['process_emp_id']}", f"Document Processed at {docQ[i]['date_processed'].strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(docQ[i]['time_to_process']).total_seconds() / 60)} minutes)", f"Document Assigned to {assignQ[i]['review_emp_id']}", f"Document Completed at {docQ[i]['date_reviwed'].strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(docQ[i]['time_to_review']).total_seconds() / 60)} minutes)", f"Total Time Take to Complete the document - {int(pd.Timedelta(docQ[i]['total_time']).total_seconds() / 60)} minutes"],
+                "status": 'Completed',
+                "documentTrail": docQ[i]['documentTrail'].split('\r\n')
             })
         
     columns = [{
@@ -103,68 +111,73 @@ def DocUpdate(request, id):
     if request.method == 'POST':
         assignQ.status = request.data['status']
         assignQ.save(update_fields=['status'])
-        if request.data['type']:
-            docQ.type = request.data['type']
-            docQ.save(update_fields=['type'])
-        if request.data['complexity']:
-            docQ.complexity = request.data['complexity']
-            docQ.save(update_fields=['complexity'])
+        # if request.data['type']:
+        #     docQ.type = request.data['type']
+        #     docQ.save(update_fields=['type'])
+        # if request.data['complexity']:
+        #     docQ.complexity = request.data['complexity']
+        #     docQ.save(update_fields=['complexity'])
         updatedDoc = Document.objects.values().get(pk = id)
         LatestAssign = Assignment.objects.values().get(doc_id_id = id)
         if(updatedDoc['status'] == 'Assigned'):
             payload = {
                 "title": updatedDoc['doc_name'],
                 "Id": updatedDoc['doc_id'],
-                "date_added": updatedDoc['date_added'],
+                "date_added": updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S'),
                 "type": updatedDoc['type'],
                 "complexity": updatedDoc['complexity'],
                 "empId": LatestAssign['process_emp_id'],
-                "logs":[f"Document created at {updatedDoc['date_added']} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}"],
-                "status": 'Assigned'
+                # "logs":[f"Document created at {updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}"],
+                "status": 'Assigned',
+                "documentTrail": updatedDoc['documentTrail'].split('\r\n')
             }
         elif(updatedDoc['status'] == 'Under Process'):
             payload = {
                 "title": updatedDoc['doc_name'],
                 "Id": updatedDoc['doc_id'],
-                "date_added": updatedDoc['date_added'],
+                "date_added": updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S'),
                 "type": updatedDoc['type'],
                 "complexity": updatedDoc['complexity'],
                 "empId": LatestAssign['process_emp_id'],
-                "logs":[f"Document created at {updatedDoc['date_added']} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}"],
-                "status": 'Under Process'
+                # "logs":[f"Document created at {updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}"],
+                "status": 'Under Process',
+                "documentTrail": updatedDoc['documentTrail'].split('\r\n')
             }
         elif(updatedDoc['status'] == 'Processed'):
             payload = {
                 "title": updatedDoc['doc_name'],
                 "Id": updatedDoc['doc_id'],
-                "date_added": updatedDoc['date_added'],
+                "date_added": updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S'),
                 "type": updatedDoc['type'],
                 "complexity": updatedDoc['complexity'],
                 "empId": LatestAssign['review_emp_id'],
-                "logs":[f"Document created at {updatedDoc['date_added']} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}", f"Document Processed at {updatedDoc['date_processed']} ({updatedDoc['time_to_process']})", f"Document Assigned to {LatestAssign['review_emp_id']}"],
-                "status": 'Processed'
+                # "logs":[f"Document created at {updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}", f"Document Processed at {updatedDoc['date_processed'].strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(updatedDoc['time_to_process']).total_seconds() / 60)} minutes)", f"Document Assigned to {LatestAssign['review_emp_id']}"],
+                "status": 'Processed',
+                "documentTrail": updatedDoc['documentTrail'].split('\r\n')
             }
         elif(updatedDoc['status'] == 'Under Review'):
             payload = {
                 "title": updatedDoc['doc_name'],
                 "Id": updatedDoc['doc_id'],
-                "date_added": updatedDoc['date_added'],
+                "date_added": updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S'),
                 "type": updatedDoc['type'],
                 "complexity": updatedDoc['complexity'],
                 "empId": LatestAssign['review_emp_id'],
-                "logs":[f"Document created at {updatedDoc['date_added']} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}", f"Document Processed at {updatedDoc['date_processed']} ({updatedDoc['time_to_process']})", f"Document Assigned to {LatestAssign['review_emp_id']}"],
-                "status": 'Under Review'
+                # "logs":[f"Document created at {updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}", f"Document Processed at {updatedDoc['date_processed'].strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(updatedDoc['time_to_process']).total_seconds() / 60)} minutes)", f"Document Assigned to {LatestAssign['review_emp_id']}"],
+                "status": 'Under Review',
+                "documentTrail": updatedDoc['documentTrail'].split('\r\n')
             }
         elif(updatedDoc['status'] == 'Reviewed'):
             payload = {
                 "title": updatedDoc['doc_name'],
                 "Id": updatedDoc['doc_id'],
-                "date_added": updatedDoc['date_added'],
+                "date_added": updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S'),
                 "type": updatedDoc['type'],
                 "complexity": updatedDoc['complexity'],
                 "empId": LatestAssign['review_emp_id'],
-                "logs":[f"Document created at {updatedDoc['date_added']} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}", f"Document Processed at {updatedDoc['date_processed']} ({updatedDoc['time_to_process']})", f"Document Assigned to {LatestAssign['review_emp_id']}", f"Document Completed at {updatedDoc['date_reviwed']} ({updatedDoc['time_to_review']})", f"Total Time Take to Complete the document - {updatedDoc['total_time']}"],
-                "status": 'Completed'
+                # "logs":[f"Document created at {updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}", f"Document Processed at {updatedDoc['date_processed'].strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(updatedDoc['time_to_process']).total_seconds() / 60)} minutes)", f"Document Assigned to {LatestAssign['review_emp_id']}", f"Document Completed at {updatedDoc['date_reviwed'].strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(updatedDoc['time_to_review']).total_seconds() / 60)} minutes)", f"Total Time Take to Complete the document - {int(pd.Timedelta(updatedDoc['total_time']).total_seconds() / 60)} minutes"],
+                "status": 'Completed',
+                "documentTrail": updatedDoc['documentTrail'].split('\r\n')
             }
         return Response({"Message": "Updated", "data": payload})
     
@@ -184,12 +197,13 @@ def Docs(request):
         payload = {
                 "title": LatestDoc['doc_name'],
                 "Id": LatestDoc['doc_id'],
-                "date_added": LatestDoc['date_added'],
+                "date_added": LatestDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S'),
                 "type": LatestDoc['type'],
                 "complexity": LatestDoc['complexity'],
                 "empId": LatestAssign['review_emp_id'],
-                "logs":[f"Document created at {LatestDoc['date_added']} of type {LatestDoc['type']} and complexity {LatestDoc['complexity']}"], 
-                "status": 'Assigned'
+                # "logs":[f"Document created at {LatestDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {LatestDoc['type']} and complexity {LatestDoc['complexity']}"], 
+                "status": 'Assigned',
+                "documentTrail": LatestDoc['documentTrail'].split('\r\n')
             }
         return Response({"Message": "New Document Created", "data": payload})
                 
@@ -302,8 +316,6 @@ def Dashboard(request):
         totalTime = 0 if pd.isna(pd.Timedelta(docTime[i]['total_time'])) else pd.Timedelta(docTime[i]['total_time']).total_seconds() / 60
         # reviewTime = pd.Timedelta(docTime[i]['time_to_review'])
         # totalTime = pd.Timedelta(docTime[i]['total_time'])
-        
-        print( processTime ,pd.isna(processTime))
             
         chart5.append([docTime[i]['doc_id'],int(str(int(processTime))[:4]),int(str(int(reviewTime))[:4]),int(str(int(totalTime))[:4])])
     

@@ -2,6 +2,8 @@ from django.db import models
 from django.db.models import Count
 from django.utils.timezone import now
 
+import pandas as pd
+
 # Create your models here.
 
 class Employee(models.Model):
@@ -41,12 +43,15 @@ class Document(models.Model):
     total_time = models.CharField(max_length=15, blank=True, editable=False)
     time_to_process = models.CharField(max_length=10, blank=True, editable=False)
     time_to_review = models.CharField(max_length=10, blank=True, editable=False)
+    reCheck = models.BooleanField(default=False)
+    documentTrail = models.TextField(blank=True, default="")
     
     def __str__(self):
         return f"{self.doc_id}"
     
     def save(self, *args, **kwargs):
         if self.status == self.Operation.NEW:
+            self.documentTrail += f"Document created at {self.date_added.strftime('%m/%d/%Y, %H:%M:%S')} of type {self.type} and complexity {self.complexity}.\r\n"
             super().save(*args, **kwargs)
             newQ = Document.objects.all().order_by('-date_added')
             empQ = Employee.objects.all()
@@ -62,17 +67,23 @@ class Document(models.Model):
             createNew = Assignment(doc_id = newQ[0], process_emp = process_emp, review_emp = review_emp, status = self.Operation.ASSIGNED)
             createNew.save()
             return
+        elif self.status == self.Operation.ASSIGNED:
+            assignQ = Assignment.objects.get(doc_id=self.doc_id)
+            self.documentTrail += f"Document Assigned to {assignQ.process_emp_id}.\r\n"
         elif self.status == self.Operation.UNDER_PROCESS:
             self.date_processed = now()
         elif self.status == self.Operation.PROCESSED:
-            self.time_to_process = (now() - self.date_processed).total_seconds()
+            assignQ = Assignment.objects.get(doc_id=self.doc_id)
+            self.time_to_process = (now() - self.date_processed)
             self.date_processed = now()
+            self.documentTrail += f"Document Processed at {self.date_processed.strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(self.time_to_process).total_seconds() / 60)} minutes). \r\nDocument Assigned to {assignQ.review_emp_id}. \r\n"
         elif self.status == self.Operation.UNDER_REVIEW:
             self.date_reviwed = now()
         elif self.status == self.Operation.REVIEWED:
-            self.time_to_review = (now() - self.date_reviwed).total_seconds()
+            self.time_to_review = (now() - self.date_reviwed)
             self.date_reviwed = now()
             self.total_time = now() - self.date_added
+            self.documentTrail += f"Document Completed at {self.date_reviwed.strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(self.time_to_review).total_seconds() / 60)} minutes). \r\nTotal Time Take to Complete the document - {int(pd.Timedelta(self.total_time).total_seconds() / 60)} minutes. \r\n"
         return super().save(*args, **kwargs)
             
     

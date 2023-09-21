@@ -18,7 +18,7 @@ function Charts() {
         >
             <div>
                 <div
-                className=' scrollbar-hide h-screen flex flex-wrap bg-[#20212c] overflow-x-scroll gap-6 pt-4 pl-4 pb-14'
+                className=' scrollbar-hide h-screen flex justify-center flex-wrap bg-[#20212c] overflow-x-scroll gap-6 pt-4 pl-4 pb-14'
                 >
                     <div>
                         <Chart

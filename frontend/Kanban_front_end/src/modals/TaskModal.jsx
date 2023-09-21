@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import elipsis from "../assets/icon-vertical-ellipsis.svg";
 import ElipsisMenu from "../components/ElipsisMenu";
 import { updateDoc } from '../redux/boardsSlice'
+import ReCheckModal from './ReCheckModal';
 function TaskModal({colIndex, taskIndex, setIsTaskModalOpen}) {
   
   const dispatch = useDispatch()
@@ -14,6 +15,9 @@ function TaskModal({colIndex, taskIndex, setIsTaskModalOpen}) {
   const [newColIndex, setNewColIndex] = useState(columns.indexOf(col))
   const [elipsisMenuOpen, setElipsisMenuOpen] = useState(false)
   const [isAddDocumentModalOpen, setIsAddDocumentModalOpen] = useState(false)
+  const [isReCheckModal, setIsReCheckModal] = useState(false)
+  const [checked, setChecked] = useState(false)
+  const [comments, setComments] = useState("Testing")
 
   const onChange = (e) => {
     let index = columns.findIndex((col, i) => col['name'] == e.target.value)
@@ -23,7 +27,7 @@ function TaskModal({colIndex, taskIndex, setIsTaskModalOpen}) {
     console.log(colIndex, newColIndex)
   };
 
-  const taskItems = task.logs.map((item) => 
+  const taskItems = task.documentTrail.map((item) => 
     <li className="pt-2 text-sm">{item}</li>
   );
 
@@ -59,6 +63,21 @@ function TaskModal({colIndex, taskIndex, setIsTaskModalOpen}) {
       setIsTaskModalOpen(false)
     }
   } 
+
+
+  const reCheckChange = (e) => {
+    console.log(comments)
+    setChecked(!checked)
+    setIsReCheckModal(true)   
+  }
+
+  const onRecheckBtnClick = (e) => {
+    if(e.target.textContent == 'Re-check'){
+      console.log(comments)
+    }
+    setChecked(!checked)
+    setIsReCheckModal(false)
+  }
 
   return (
     <div
@@ -111,6 +130,22 @@ function TaskModal({colIndex, taskIndex, setIsTaskModalOpen}) {
             </label>
             <p className="inline-block pt-3">{task.empId}</p>
           </p>
+          { columns[colIndex].name == 'Under Review' ?
+            <p className=" text-gray-500 font-[600] tracking-wide text-sm pt-3">
+                <input
+                  className=" w-4 h-4  accent-[#635fc7] cursor-pointer "
+                  type="checkbox"
+                  checked={checked}
+                  onChange={reCheckChange}
+                />
+                <label className=' pl-4'>
+                  Re-Check
+                </label>
+            </p>
+            :
+            <>
+            </>
+          }
           <div className="mt-8 flex flex-col space-y-3">
             <label className="  text-sm dark:text-white text-gray-500">
               Current Status
@@ -156,6 +191,16 @@ function TaskModal({colIndex, taskIndex, setIsTaskModalOpen}) {
           </div>
         </div>
       </div>
+      { isReCheckModal && 
+          <ReCheckModal 
+            setIsReCheckModal={setIsReCheckModal}
+            taskId = {task.Id}
+            setChecked = {setChecked}
+            onRecheckBtnClick = {onRecheckBtnClick}
+            value = {comments}
+            setComments = {setComments}
+          />
+      }
     </div>
   )
 }

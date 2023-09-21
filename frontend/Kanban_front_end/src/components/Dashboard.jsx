@@ -3,7 +3,7 @@ import logo from '../assets/logo-mobile.svg'
 
 function Dashboard() {
   return (
-    <div className=' p-4 bg-[#2b2c37] z-100'>
+    <div className=' p-4 bg-[#2b2c37] z-40'>
 
         <header className=' flex left-0 justify-between text-white items-center right-0'>
             
