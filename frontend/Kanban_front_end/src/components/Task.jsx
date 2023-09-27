@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import TaskModal from '../modals/TaskModal'
+import ReCheckModal from '../modals/ReCheckModal';
 
 function Task({taskIndex, colIndex}) {
 
@@ -9,6 +10,13 @@ function Task({taskIndex, colIndex}) {
     const task = col.tasks.find((task, i) => i === taskIndex)
 
     const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
+    const [isReCheckModal, setIsReCheckModal] = useState(false)
+    const [comments, setComments] = useState("")
+
+    const reCheckChange = (e) => {
+        setIsReCheckModal(true)   
+        setIsTaskModalOpen(false)
+      }
 
     const handleOnDrag = (e) => {
         e.dataTransfer.setData(
@@ -16,6 +24,21 @@ function Task({taskIndex, colIndex}) {
           JSON.stringify({ taskIndex, prevColIndex: colIndex })
         );
     };
+
+    const onRecheckBtnClick = (e) => {
+        if(e.target.textContent == 'Re-check'){
+          let payload = {
+            comment: task.empId+": "+comments,
+            docId: task.Id
+          }
+          console.log(payload)
+        }else{
+          setIsTaskModalOpen(true)
+        }
+        // setChecked(!checked)
+        setComments("")
+        setIsReCheckModal(false)
+    }
 
     return (
         <div>
@@ -38,8 +61,19 @@ function Task({taskIndex, colIndex}) {
                     colIndex={colIndex}
                     taskIndex={taskIndex}
                     setIsTaskModalOpen={setIsTaskModalOpen}
+                    reCheckChange={reCheckChange}
                     />
                 )
+            }
+            { isReCheckModal && 
+                <ReCheckModal 
+                    setIsReCheckModal={setIsReCheckModal}
+                    taskId = {task.Id}
+                    setIsTaskModalOpen={setIsTaskModalOpen}
+                    onRecheckBtnClick = {onRecheckBtnClick}
+                    comments = {comments}
+                    setComments = {setComments}
+                />
             }
     </div>
     )

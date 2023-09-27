@@ -1,7 +1,6 @@
 import React from 'react'
 
-function ReCheckModal({ setIsReCheckModal, taskId, setChecked, onRecheckBtnClick, comments, setComments}) {
-    console.log("Comments: ",comments)
+function ReCheckModal({ setIsReCheckModal, taskId, onRecheckBtnClick, comments, setComments, setIsTaskModalOpen}) {
   return (
     <div
       onClick={(e) => {
@@ -21,22 +20,19 @@ function ReCheckModal({ setIsReCheckModal, taskId, setChecked, onRecheckBtnClick
             This action cannot be reversed.
           </p>
           <p className="text-gray-500 tracking-wide text-lg font-bold pt-3 pb-3">Comments</p>
-          <textarea name="postContent" value={comments} rows={4} cols={40}  className=' dark:bg-[#56586d] text-white text-sm p-2 font-normal'/>
+          <textarea name="postContent" value={comments} rows={4} cols={40} onChange={(e) => {
+            setComments(e.target.value);
+          }}  className=' dark:bg-[#56586d] text-white text-sm p-2 font-normal'/>
           <div className=" flex w-full mt-4 items-center justify-center space-x-4 ">
           <button
-            onClick={(e) => {
-                    setComments(e.target.value)
-                    onRecheckBtnClick
-                }
-            }
-            onChange={e => setComments(e.target.value)}
+            onClick={onRecheckBtnClick}
             className="w-full items-center text-white hover:opacity-75 bg-red-500 py-2 rounded-full"
           >
             Re-check
           </button>
           <button
             onClick={() => {
-                setChecked(false)
+                setIsTaskModalOpen(true)
                 setIsReCheckModal(false)
             }}
             className="w-full items-center text-[#635fc7] dark:bg-white hover:opacity-75 bg-[#635fc71a]  py-2 rounded-full"

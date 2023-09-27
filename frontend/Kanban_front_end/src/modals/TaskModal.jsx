@@ -3,8 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import elipsis from "../assets/icon-vertical-ellipsis.svg";
 import ElipsisMenu from "../components/ElipsisMenu";
 import { updateDoc } from '../redux/boardsSlice'
-import ReCheckModal from './ReCheckModal';
-function TaskModal({colIndex, taskIndex, setIsTaskModalOpen}) {
+function TaskModal({colIndex, taskIndex, setIsTaskModalOpen, reCheckChange}) {
   
   const dispatch = useDispatch()
   const columns = useSelector(state => state.boards.board.columns)
@@ -13,11 +12,6 @@ function TaskModal({colIndex, taskIndex, setIsTaskModalOpen}) {
 
   const [status, setStatus] = useState(task.status)
   const [newColIndex, setNewColIndex] = useState(columns.indexOf(col))
-  const [elipsisMenuOpen, setElipsisMenuOpen] = useState(false)
-  const [isAddDocumentModalOpen, setIsAddDocumentModalOpen] = useState(false)
-  const [isReCheckModal, setIsReCheckModal] = useState(false)
-  const [checked, setChecked] = useState(false)
-  const [comments, setComments] = useState("Testing")
 
   const onChange = (e) => {
     let index = columns.findIndex((col, i) => col['name'] == e.target.value)
@@ -31,11 +25,11 @@ function TaskModal({colIndex, taskIndex, setIsTaskModalOpen}) {
     <li className="pt-2 text-sm">{item}</li>
   );
 
-  const setOpenEditModal = () => {
-    setIsAddDocumentModalOpen(true)
-    setElipsisMenuOpen(false)
-    // Write
-  }
+  // const setOpenEditModal = () => {
+  //   setIsAddDocumentModalOpen(true)
+  //   setElipsisMenuOpen(false)
+  //   // Write
+  // }
   
   const onClose = (e) => {
     if(e.target !== e.currentTarget){
@@ -62,21 +56,6 @@ function TaskModal({colIndex, taskIndex, setIsTaskModalOpen}) {
       dispatch(updateDoc(payload))
       setIsTaskModalOpen(false)
     }
-  } 
-
-
-  const reCheckChange = (e) => {
-    console.log(comments)
-    setChecked(!checked)
-    setIsReCheckModal(true)   
-  }
-
-  const onRecheckBtnClick = (e) => {
-    if(e.target.textContent == 'Re-check'){
-      console.log(comments)
-    }
-    setChecked(!checked)
-    setIsReCheckModal(false)
   }
 
   return (
@@ -132,16 +111,18 @@ function TaskModal({colIndex, taskIndex, setIsTaskModalOpen}) {
           </p>
           { columns[colIndex].name == 'Under Review' ?
             <p className=" text-gray-500 font-[600] tracking-wide text-sm pt-3">
-                <input
+                {/* <input
                   className=" w-4 h-4  accent-[#635fc7] cursor-pointer "
                   type="checkbox"
                   checked={checked}
                   onChange={reCheckChange}
-                />
-                <label className=' pl-4'>
+                /> */}
+                <button className='w-full items-center text-white hover:opacity-75 bg-gray-600 py-2 rounded-full' onClick={reCheckChange}> Re-check </button>
+                {/* <label className=' pl-4'>
                   Re-Check
-                </label>
+                </label> */}
             </p>
+
             :
             <>
             </>
@@ -191,16 +172,6 @@ function TaskModal({colIndex, taskIndex, setIsTaskModalOpen}) {
           </div>
         </div>
       </div>
-      { isReCheckModal && 
-          <ReCheckModal 
-            setIsReCheckModal={setIsReCheckModal}
-            taskId = {task.Id}
-            setChecked = {setChecked}
-            onRecheckBtnClick = {onRecheckBtnClick}
-            value = {comments}
-            setComments = {setComments}
-          />
-      }
     </div>
   )
 }
