@@ -32,6 +32,7 @@ def BoardData(request):
                 "empId": assignQ[i]['process_emp_id'],
                 # "logs":[f"Document created at {docQ[i]['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {docQ[i]['type']} and complexity {docQ[i]['complexity']}", f"Document Assigned to {assignQ[i]['process_emp_id']}"],
                 "status": 'Assigned',
+                "NoOfReviews": docQ[i]['NoOfRechecks'],
                 "documentTrail": docQ[i]['documentTrail'].split('\r\n')
             })
         elif(docQ[i]['status'] == 'Under Process'):
@@ -44,6 +45,7 @@ def BoardData(request):
                 "empId": assignQ[i]['process_emp_id'],
                 # "logs":[f"Document created at {docQ[i]['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {docQ[i]['type']} and complexity {docQ[i]['complexity']}", f"Document Assigned to {assignQ[i]['process_emp_id']}"],
                 "status": 'Under Process',
+                "NoOfReviews": docQ[i]['NoOfRechecks'],
                 "documentTrail": docQ[i]['documentTrail'].split('\r\n')
             })
         elif(docQ[i]['status'] == 'Processed'):
@@ -56,6 +58,7 @@ def BoardData(request):
                 "empId": assignQ[i]['review_emp_id'],
                 # "logs":[f"Document created at {docQ[i]['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {docQ[i]['type']} and complexity {docQ[i]['complexity']}", f"Document Assigned to {assignQ[i]['process_emp_id']}", f"Document Processed at {docQ[i]['date_processed'].strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(docQ[i]['time_to_process']).total_seconds() / 60)} minutes)", f"Document Assigned to {assignQ[i]['review_emp_id']}"],
                 "status": 'Processed',
+                "NoOfReviews": docQ[i]['NoOfRechecks'],
                 "documentTrail": docQ[i]['documentTrail'].split('\r\n')
             })
         elif(docQ[i]['status'] == 'Under Review'):
@@ -68,6 +71,7 @@ def BoardData(request):
                 "empId": assignQ[i]['review_emp_id'],
                 # "logs":[f"Document created at {docQ[i]['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {docQ[i]['type']} and complexity {docQ[i]['complexity']}", f"Document Assigned to {assignQ[i]['process_emp_id']}", f"Document Processed at {docQ[i]['date_processed'].strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(docQ[i]['time_to_process']).total_seconds() / 60)} minutes)", f"Document Assigned to {assignQ[i]['review_emp_id']}"],
                 "status": 'Under Review',
+                "NoOfReviews": docQ[i]['NoOfRechecks'],
                 "documentTrail": docQ[i]['documentTrail'].split('\r\n')
                 # "documentTrail": docQ[i]['documentTrail'].split('\r\n').split(),
                 # "recheck": docQ[i]['reCheck']
@@ -82,6 +86,7 @@ def BoardData(request):
                 "empId": assignQ[i]['review_emp_id'],
                 # "logs":[f"Document created at {docQ[i]['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {docQ[i]['type']} and complexity {docQ[i]['complexity']}", f"Document Assigned to {assignQ[i]['process_emp_id']}", f"Document Processed at {docQ[i]['date_processed'].strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(docQ[i]['time_to_process']).total_seconds() / 60)} minutes)", f"Document Assigned to {assignQ[i]['review_emp_id']}", f"Document Completed at {docQ[i]['date_reviwed'].strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(docQ[i]['time_to_review']).total_seconds() / 60)} minutes)", f"Total Time Take to Complete the document - {int(pd.Timedelta(docQ[i]['total_time']).total_seconds() / 60)} minutes"],
                 "status": 'Completed',
+                "NoOfReviews": docQ[i]['NoOfRechecks'],
                 "documentTrail": docQ[i]['documentTrail'].split('\r\n')
             })
         
@@ -129,6 +134,7 @@ def DocUpdate(request, id):
                 "empId": LatestAssign['process_emp_id'],
                 # "logs":[f"Document created at {updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}"],
                 "status": 'Assigned',
+                "NoOfReviews": updatedDoc['NoOfRechecks'],
                 "documentTrail": updatedDoc['documentTrail'].split('\r\n')
             }
         elif(updatedDoc['status'] == 'Under Process'):
@@ -141,6 +147,7 @@ def DocUpdate(request, id):
                 "empId": LatestAssign['process_emp_id'],
                 # "logs":[f"Document created at {updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}"],
                 "status": 'Under Process',
+                "NoOfReviews": updatedDoc['NoOfRechecks'],
                 "documentTrail": updatedDoc['documentTrail'].split('\r\n')
             }
         elif(updatedDoc['status'] == 'Processed'):
@@ -153,6 +160,7 @@ def DocUpdate(request, id):
                 "empId": LatestAssign['review_emp_id'],
                 # "logs":[f"Document created at {updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}", f"Document Processed at {updatedDoc['date_processed'].strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(updatedDoc['time_to_process']).total_seconds() / 60)} minutes)", f"Document Assigned to {LatestAssign['review_emp_id']}"],
                 "status": 'Processed',
+                "NoOfReviews": updatedDoc['NoOfRechecks'],
                 "documentTrail": updatedDoc['documentTrail'].split('\r\n')
             }
         elif(updatedDoc['status'] == 'Under Review'):
@@ -165,6 +173,7 @@ def DocUpdate(request, id):
                 "empId": LatestAssign['review_emp_id'],
                 # "logs":[f"Document created at {updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}", f"Document Processed at {updatedDoc['date_processed'].strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(updatedDoc['time_to_process']).total_seconds() / 60)} minutes)", f"Document Assigned to {LatestAssign['review_emp_id']}"],
                 "status": 'Under Review',
+                "NoOfReviews": updatedDoc['NoOfRechecks'],
                 "documentTrail": updatedDoc['documentTrail'].split('\r\n')
             }
         elif(updatedDoc['status'] == 'Reviewed'):
@@ -177,6 +186,7 @@ def DocUpdate(request, id):
                 "empId": LatestAssign['review_emp_id'],
                 # "logs":[f"Document created at {updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}", f"Document Processed at {updatedDoc['date_processed'].strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(updatedDoc['time_to_process']).total_seconds() / 60)} minutes)", f"Document Assigned to {LatestAssign['review_emp_id']}", f"Document Completed at {updatedDoc['date_reviwed'].strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(updatedDoc['time_to_review']).total_seconds() / 60)} minutes)", f"Total Time Take to Complete the document - {int(pd.Timedelta(updatedDoc['total_time']).total_seconds() / 60)} minutes"],
                 "status": 'Completed',
+                "NoOfReviews": updatedDoc['NoOfRechecks'],
                 "documentTrail": updatedDoc['documentTrail'].split('\r\n')
             }
         return Response({"Message": "Updated", "data": payload})
@@ -203,10 +213,44 @@ def Docs(request):
                 "empId": LatestAssign['review_emp_id'],
                 # "logs":[f"Document created at {LatestDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {LatestDoc['type']} and complexity {LatestDoc['complexity']}"], 
                 "status": 'Assigned',
+                "NoOfReviews": LatestDoc['NoOfRechecks'],
                 "documentTrail": LatestDoc['documentTrail'].split('\r\n')
             }
         return Response({"Message": "New Document Created", "data": payload})
                 
+                
+@api_view(['GET','POST'])
+def DocReCheck(request, id):
+    if request.method == 'GET':
+        return Response(Document.objects.values().get(pk=id))
+    elif request.method == 'POST':
+        if request.data['comments']:
+            doc = Document.objects.get(pk=id)
+            doc.date_processed = None
+            doc.date_reviwed = None
+            doc.time_to_process = ""
+            doc.documentTrail += request.data['comments'] + "\r\n"
+            doc.NoOfRechecks += 1
+            print(doc.documentTrail)
+            doc.save(update_fields=['date_processed','date_reviwed','time_to_process','NoOfRechecks','documentTrail'])
+            assign = Assignment.objects.get(doc_id_id = id) 
+            assign.status = 'Assigned'
+            assign.save(update_fields=['status'])
+            updatedDoc = Document.objects.values().get(pk=id)
+            LatestAssign = Assignment.objects.values().get(doc_id_id = id)
+            payload = {
+                        "title": updatedDoc['doc_name'],
+                        "Id": updatedDoc['doc_id'],
+                        "date_added": updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S'),
+                        "type": updatedDoc['type'],
+                        "complexity": updatedDoc['complexity'],
+                        "empId": LatestAssign['process_emp_id'],
+                        # "logs":[f"Document created at {updatedDoc['date_added'].strftime('%m/%d/%Y, %H:%M:%S')} of type {updatedDoc['type']} and complexity {updatedDoc['complexity']}", f"Document Assigned to {LatestAssign['process_emp_id']}"],
+                        "status": 'Assigned',
+                        "NoOfReviews": updatedDoc['NoOfRechecks'],
+                        "documentTrail": updatedDoc['documentTrail'].split('\r\n')
+                    }
+            return Response({"Message": "Updated", "data": payload})
                 
                 
 @api_view(['GET'])

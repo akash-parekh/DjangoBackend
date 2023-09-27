@@ -43,7 +43,7 @@ class Document(models.Model):
     total_time = models.CharField(max_length=15, blank=True, editable=False)
     time_to_process = models.CharField(max_length=10, blank=True, editable=False)
     time_to_review = models.CharField(max_length=10, blank=True, editable=False)
-    reCheck = models.BooleanField(default=False)
+    NoOfRechecks = models.IntegerField(blank=True, default=0)
     documentTrail = models.TextField(blank=True, default="")
     
     def __str__(self):
@@ -78,6 +78,7 @@ class Document(models.Model):
             self.date_processed = now()
             self.documentTrail += f"Document Processed at {self.date_processed.strftime('%m/%d/%Y, %H:%M:%S')} ({int(pd.Timedelta(self.time_to_process).total_seconds() / 60)} minutes). \r\nDocument Assigned to {assignQ.review_emp_id}. \r\n"
         elif self.status == self.Operation.UNDER_REVIEW:
+            self.NoOfRechecks += 1
             self.date_reviwed = now()
         elif self.status == self.Operation.REVIEWED:
             self.time_to_review = (now() - self.date_reviwed)
